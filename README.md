@@ -14,6 +14,122 @@ The `LetsFund.sol` project is a Solidity smart contract that serves as the backb
 ![Charity Marketplace](./screenshots/letsfund3.png)
 The contract is designed around two primary structures: CharityStruct and SupportStruct, representing a charity and a supporter, respectively.
 
+## Coursework Change Log (March 2026)
+
+This section documents the modifications made on top of the original app for coursework submission.
+
+### 1) Branding + Homepage Customization
+
+Updated public-facing dApp name and homepage visuals:
+
+- `components/Banner.tsx`
+	- Banner image changed to local asset: `/background.webp`
+	- CTA label changed to: `Start Shawkat's Charity DApp`
+- `components/Header.tsx`
+	- Brand text changed from `LetsFund` to `Shawkat's Charity DApp`
+- `components/Footer.tsx`
+	- Brand references updated to `Shawkat's Charity DApp`
+- `components/Quote.tsx`
+	- CTA text updated to `Start Shawkat's Charity DApp`
+- `pages/index.tsx`
+	- Page title updated to `Shawkat's Charity DApp`
+- `services/provider.tsx`
+	- RainbowKit app name updated to `Shawkat's Charity DApp`
+
+Added/used homepage image file:
+
+- `public/background.webp` (copied from `screenshots/background.webp`)
+
+### 2) Wallet/Network Configuration Fixes
+
+To fix recurring wrong-network and RPC issues:
+
+- `services/provider.tsx`
+	- Normalized supported chains to: `sepolia`, `hardhat`, `localhost`
+	- Set `initialChain={sepolia}`
+	- Added safer provider fallback logic when optional API keys are missing
+
+### 3) Local Hardhat Compatibility + Stable Signer Flow
+
+To prevent mobile wallet account switching from breaking transactions:
+
+- `services/blockchain.tsx`
+	- Added `NEXT_PUBLIC_FORCE_LOCAL_SIGNER` mode
+	- Added local private-key signer support via `NEXT_PUBLIC_PRIVATE_KEY`
+	- Added robust RPC fallback handling with `NEXT_PUBLIC_RPC_URL`
+	- Updated tx methods (`create/update/donate/delete/ban`) to support fixed local signer mode
+
+### 4) Runtime UI Crash Stabilization (`Element type is invalid`)
+
+To remove unstable runtime paths seen during create/donate:
+
+- `components/NavBtn.tsx`
+	- Replaced Headless UI `Menu` composition with plain React dropdown
+- `pages/donations/create.tsx`
+	- Replaced `react-toastify` submit flow with `try/catch + window.alert`
+	- Added fixed-signer-mode-aware connect check
+- `components/Donor.tsx`
+	- Replaced `react-toastify` submit flow with `try/catch + window.alert`
+
+### 5) Local Contract + Environment Alignment
+
+- `contracts/contractAddress.json`
+	- Updated by local deploy to Hardhat address (`0x5FbDB...` style local address)
+- `.env.local`
+	- Set local RPC: `NEXT_PUBLIC_RPC_URL=http://127.0.0.1:8545`
+	- Enabled fixed signer mode: `NEXT_PUBLIC_FORCE_LOCAL_SIGNER=true`
+	- Kept local funded dev private key for deterministic signing in localhost tests
+
+### 6) Added local run handbook
+
+- `RUN_DAPP.md`
+	- Added full Windows setup/run commands
+	- Added MetaMask desktop/mobile local-network setup
+	- Added troubleshooting for chain ID, decode-data, and insufficient-funds errors
+
+### 7) Tooling/Dependency adjustments used during setup
+
+For local execution stability, the environment used:
+
+- `npm install --legacy-peer-deps`
+- Added required Hardhat plugin peer dependencies and `dotenv`
+- Used local deploy + seed flow against localhost network
+
+---
+
+## Current Recommended Run Flow (for this coursework version)
+
+1. Install dependencies:
+
+```sh
+npm install --legacy-peer-deps
+```
+
+2. Start local chain:
+
+```sh
+npx hardhat node
+```
+
+3. Deploy + seed local contract:
+
+```sh
+npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/seed.js --network localhost
+```
+
+4. Start app:
+
+```sh
+npm run dev
+```
+
+5. Open app:
+
+```text
+http://localhost:3000
+```
+
 ## Key features:
 
 - createCharity: Allows a user to create a new charity.
